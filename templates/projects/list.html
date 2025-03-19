@@ -1,0 +1,73 @@
+{% extends "layout/dashboard/layout.html" %}
+{% load static %}
+
+{% block title %}Projects{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-6 py-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-semibold text-gray-900">Projects</h1>
+        <button onclick="confirmCreateProject()" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md">
+            <span>Create Project</span>
+        </button>
+    </div>
+
+    <!-- Project Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for project in projects %}
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex justify-between items-start">
+                    <h2 class="text-xl font-semibold text-gray-900">{{ project.name }}</h2>
+                    <span class="px-2 py-1 text-sm rounded-full {% if project.status == 'approved' %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                        {{ project.status|title }}
+                    </span>
+                </div>
+                <p class="mt-2 text-gray-600">{{ project.description|truncatewords:20 }}</p>
+                <div class="mt-4 flex justify-between items-center">
+                    <div>
+                        <span class="text-sm text-gray-500">Budget:</span>
+                        <span class="font-medium text-gray-900">${{ project.total_budget }}</span>
+                    </div>
+                    <a href="{% url 'app:project_detail' project.id %}" class="text-blue-600 hover:text-blue-800">View Details →</a>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-span-full text-center py-12">
+                <p class="text-gray-600">No projects found. Create your first project to get started!</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_head %}
+{{ block.super }}
+<script>
+function confirmCreateProject() {
+    Swal.fire({
+        title: 'Create New Project',
+        text: 'You are about to create a new project. This will require budget allocation and approval.',
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, create new project',
+        cancelButtonText: 'No, not now'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = "{% url 'app:project_create' %}";
+        }
+    });
+}
+
+// Show messages from Django
+{% if messages %}
+    {% for message in messages %}
+        Swal.fire({
+            title: '{% if message.tags %}{{ message.tags|capfirst }}{% else %}Notice{% endif %}',
+            text: '{{ message|escapejs }}',
+            icon: '{% if message.tags == "error" %}error{% elif message.tags == "success" %}success{% else %}info{% endif %}'
+        });
+    {% endfor %}
+{% endif %}
+</script>
+{% endblock %}

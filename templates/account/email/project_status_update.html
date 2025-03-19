@@ -1,0 +1,29 @@
+{% extends "account/email/base_email.html" %}
+
+{% block email_title %}Project Status Update{% endblock %}
+
+{% block email_content %}
+<p>Dear {{ project.owner.get_full_name|default:project.owner.username }},</p>
+
+<p>The status of your project "{{ project.name }}" has been updated to <strong>{{ project.get_status_display }}</strong>.</p>
+
+{% if project.status == 'approved' %}
+<p>Your project has been approved! You can now start adding expenses and managing your budget.</p>
+{% elif project.status == 'cancelled' %}
+<p>Your project has been cancelled. No further expenses can be added to this project.</p>
+{% endif %}
+
+<p>Project Details:</p>
+<ul>
+    <li>Project Name: {{ project.name }}</li>
+    <li>Total Budget: ${{ project.total_budget }}</li>
+    <li>Start Date: {{ project.start_date }}</li>
+    <li>End Date: {{ project.end_date }}</li>
+</ul>
+
+<p>You can view your project details by clicking the button below:</p>
+{% endblock %}
+
+{% block email_button %}
+<a href="{{ site_url }}{% url 'app:project_detail' project.id %}" class="button">View Project</a>
+{% endblock %}

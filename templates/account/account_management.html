@@ -1,0 +1,96 @@
+{% extends "layout/dashboard/base.html" %}
+{% load static %}
+
+{% block title %}Account Management{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+  <!-- Welcome Message -->
+  {% if messages %}
+  <div class="mb-8">
+    {% for message in messages %}
+    <div class="p-4 mb-4 bg-green-100 border border-green-200 text-sm text-green-800 rounded-lg dark:bg-green-800/10 dark:border-green-900 dark:text-green-500" role="alert">
+      {{ message }}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Account Management Card -->
+  <div class="bg-white rounded-xl shadow p-4 sm:p-7 dark:bg-neutral-800">
+    <div class="mb-8">
+      <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200">
+        Account Management
+      </h2>
+      <p class="text-sm text-gray-600 dark:text-gray-400">
+        Manage your account settings and preferences
+      </p>
+    </div>
+
+    <!-- Account Details -->
+    <div class="space-y-8">
+      <!-- Email Section -->
+      <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg dark:bg-neutral-900">
+        <div>
+          <p class="text-sm font-medium text-gray-800 dark:text-gray-200">Email Address</p>
+          <p class="text-sm text-gray-600 dark:text-gray-400">{{ user.email }}</p>
+        </div>
+        <a href="{% url 'account_email' %}" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600">
+          Change Email
+        </a>
+      </div>
+
+      <!-- Password Section -->
+      <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg dark:bg-neutral-900">
+        <div>
+          <p class="text-sm font-medium text-gray-800 dark:text-gray-200">Password</p>
+          <p class="text-sm text-gray-600 dark:text-gray-400">●●●●●●●●</p>
+        </div>
+        <a href="{% url 'account_change_password' %}" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600">
+          Change Password
+        </a>
+      </div>
+
+      <!-- Sign Out Section -->
+      <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg dark:bg-neutral-900">
+        <div>
+          <p class="text-sm font-medium text-gray-800 dark:text-gray-200">Sign Out</p>
+          <p class="text-sm text-gray-600 dark:text-gray-400">End your current session</p>
+        </div>
+        <button type="button" data-hs-overlay="#confirm-signout-modal" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-red-200 bg-red-100 text-red-800 shadow-sm hover:bg-red-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-red-800/10 dark:border-red-900 dark:text-red-500 dark:hover:bg-red-800/20 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-red-600">
+          Sign Out
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Sign Out Confirmation Modal -->
+<div id="confirm-signout-modal" class="hs-overlay hidden size-full fixed top-0 start-0 z-[60] overflow-x-hidden overflow-y-auto pointer-events-none">
+  <div class="hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all sm:max-w-lg sm:w-full m-3 sm:mx-auto min-h-[calc(100%-3.5rem)] flex items-center">
+    <div class="flex flex-col bg-white border shadow-sm rounded-xl pointer-events-auto dark:bg-neutral-800 dark:border-neutral-700">
+      <div class="p-4 sm:p-7 text-center overflow-y-auto">
+        <div class="mb-4 inline-flex justify-center items-center size-12 rounded-full border-2 border-yellow-200 bg-yellow-100 text-yellow-800 dark:bg-yellow-800/10 dark:border-yellow-900 dark:text-yellow-500">
+          <svg class="flex-shrink-0 size-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </div>
+        
+        <h3 class="mb-2 text-xl font-bold text-gray-800 dark:text-gray-200">
+          Sign Out Confirmation
+        </h3>
+        <p class="text-gray-600 dark:text-gray-400">
+          Are you sure you want to sign out? You'll need to sign in again to access your account.
+        </p>
+
+        <div class="mt-6 flex justify-center gap-x-4">
+          <button type="button" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600" data-hs-overlay="#confirm-signout-modal">
+            Cancel
+          </button>
+          <a href="{% url 'account_logout' %}" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-red-200 bg-red-100 text-red-800 shadow-sm hover:bg-red-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-red-800/10 dark:border-red-900 dark:text-red-500 dark:hover:bg-red-800/20 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-red-600">
+            Sign Out
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "account/_layout.html" %}
+{% block content %}
+  <div class="min-h-screen flex items-center justify-center bg-gray-100">
+    <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+      <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">Email Verified</h1>
+      <p class="text-gray-600 text-center">
+        Your email has been successfully verified. You can now 
+        <a href="{% url 'account_login' %}" class="text-blue-600 hover:underline">log in</a>.
+      </p>
+    </div>
+  </div>
+{% endblock %}

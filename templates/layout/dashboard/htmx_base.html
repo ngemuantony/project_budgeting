@@ -1,0 +1,14 @@
+{% extends "layout/dashboard/layout.html" %}
+
+{% block extra_head %}
+<!-- HTMX -->
+<script src="https://unpkg.com/htmx.org@1.9.10"></script>
+<style>
+    .htmx-indicator {
+        display: none;
+    }
+    .htmx-request .htmx-indicator {
+        display: inline-block;
+    }
+</style>
+{% endblock %}

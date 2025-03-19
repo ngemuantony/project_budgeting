@@ -1,0 +1,69 @@
+{% extends "account/base_account.html" %}
+{% load i18n %}
+{% load account %}
+
+{% block account_title %}
+    {% trans "Sign In" %}
+{% endblock %}
+
+{% block account_content %}
+    <form class="space-y-6" method="POST" action="{% url 'account_login' %}">
+        {% csrf_token %}
+        {% if redirect_field_value %}
+            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+        {% endif %}
+
+        <div>
+            <label for="id_login" class="block text-sm font-medium text-gray-700">
+                {% trans "Email" %}
+            </label>
+            <div class="mt-1">
+                <input type="email" name="login" id="id_login" autocomplete="email" required
+                       class="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm">
+            </div>
+        </div>
+
+        <div>
+            <label for="id_password" class="block text-sm font-medium text-gray-700">
+                {% trans "Password" %}
+            </label>
+            <div class="mt-1">
+                <input type="password" name="password" id="id_password" autocomplete="current-password" required
+                       class="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm">
+            </div>
+        </div>
+
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <input type="checkbox" name="remember" id="id_remember" 
+                       class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                <label for="id_remember" class="ml-2 block text-sm text-gray-900">
+                    {% trans "Remember me" %}
+                </label>
+            </div>
+
+            <div class="text-sm">
+                <a href="{% url 'account_reset_password' %}" class="font-medium text-blue-600 hover:text-blue-500">
+                    {% trans "Forgot Password?" %}
+                </a>
+            </div>
+        </div>
+
+        <div>
+            <button type="submit" class="flex w-full justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                {% trans "Sign In" %}
+            </button>
+        </div>
+    </form>
+{% endblock %}
+
+{% block account_footer %}
+    <div class="mt-6">
+        <p class="text-center text-sm text-gray-600">
+            {% trans "Don't have an account?" %}
+            <a href="{% url 'account_signup' %}" class="font-medium text-blue-600 hover:text-blue-500">
+                {% trans "Sign up" %}
+            </a>
+        </p>
+    </div>
+{% endblock %}

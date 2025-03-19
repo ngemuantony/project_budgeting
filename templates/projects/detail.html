@@ -1,0 +1,341 @@
+{% extends "layout/dashboard/htmx_base.html" %}
+{% block content %}
+<!-- Project Header -->
+<div class="px-6 py-4 grid gap-3 md:flex md:justify-between md:items-center border-b border-gray-200 dark:border-neutral-700">
+    <div>
+        <div class="flex items-center gap-x-3">
+            <h2 class="text-xl font-semibold text-gray-800 dark:text-neutral-200">
+                {{ project.name }}
+            </h2>
+            <span class="inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-full text-xs font-medium {% if project.status == 'approved' %}bg-teal-100 text-teal-800{% elif project.status == 'pending' %}bg-yellow-100 text-yellow-800{% elif project.status == 'rejected' %}bg-red-100 text-red-800{% elif project.status == 'cancelled' %}bg-gray-100 text-gray-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                {{ project.status|title }}
+            </span>
+        </div>
+        <p class="mt-1 text-sm text-gray-600 dark:text-neutral-400">
+            {{ project.description }}
+        </p>
+    </div>
+
+    <div class="flex gap-x-2">
+        {% if user.is_superuser and project.status == 'pending' %}
+        <button type="button"
+                onclick="confirmApprove()"
+                class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 disabled:pointer-events-none">
+            Approve Project
+        </button>
+        {% endif %}
+        {% if user == project.owner or user.is_superuser %}
+        <form id="statusForm" method="POST" action="{% url 'app:update_project_status' project.pk %}" class="inline-flex" onsubmit="return confirmStatusUpdate(event)">
+            {% csrf_token %}
+            <select name="status" class="py-2 px-3 text-sm font-semibold rounded-lg border border-gray-200 text-gray-500 bg-white hover:bg-gray-100 me-2">
+                {% for value, label in project.STATUS_CHOICES %}
+                <option value="{{ value }}" {% if project.status == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-100">
+                Update Status
+            </button>
+        </form>
+        {% if project.status != 'cancelled' %}
+        <button type="button"
+                onclick="confirmCancel()"
+                class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:pointer-events-none">
+            Cancel Project
+        </button>
+        {% endif %}
+        {% endif %}
+        {% if user.is_superuser %}
+        <button type="button"
+                onclick="confirmDelete()"
+                class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:pointer-events-none">
+            Delete Project
+        </button>
+        {% endif %}
+        <button type="button"
+                onclick="confirmExport()"
+                class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none">
+            Export Report
+        </button>
+    </div>
+</div>
+
+<!-- Project Stats -->
+<div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 p-6"
+     id="project-stats"
+     hx-get="{% url 'app:project_detail' project.pk %}"
+     hx-trigger="expenseAdded from:body"
+     hx-target="#project-stats"
+     hx-select="#project-stats">
+    <!-- Total Budget Card -->
+    <div class="flex flex-col bg-white border shadow-sm rounded-xl dark:bg-neutral-800 dark:border-neutral-700">
+        <div class="p-4 md:p-5">
+            <div class="flex items-center gap-x-2">
+                <p class="text-xs uppercase tracking-wide text-gray-500">
+                    Total Budget
+                </p>
+            </div>
+            <div class="mt-1 flex items-center gap-x-2">
+                <h3 class="text-xl sm:text-2xl font-medium text-gray-800 dark:text-neutral-200">
+                    ${{ project.total_budget|floatformat:2 }}
+                </h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Expenses Card -->
+    <div class="flex flex-col bg-white border shadow-sm rounded-xl dark:bg-neutral-800 dark:border-neutral-700">
+        <div class="p-4 md:p-5">
+            <div class="flex items-center gap-x-2">
+                <p class="text-xs uppercase tracking-wide text-gray-500">
+                    Total Expenses
+                </p>
+            </div>
+            <div class="mt-1 flex items-center gap-x-2">
+                <h3 class="text-xl sm:text-2xl font-medium text-gray-800 dark:text-neutral-200">
+                    ${{ project.total_expenses|floatformat:2 }}
+                </h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Budget Remaining Card -->
+    <div class="flex flex-col bg-white border shadow-sm rounded-xl dark:bg-neutral-800 dark:border-neutral-700">
+        <div class="p-4 md:p-5">
+            <div class="flex items-center gap-x-2">
+                <p class="text-xs uppercase tracking-wide text-gray-500">
+                    Budget Remaining
+                </p>
+            </div>
+            <div class="mt-1 flex items-center gap-x-2">
+                <h3 class="text-xl sm:text-2xl font-medium {% if project.budget_remaining < 0 %}text-red-600{% else %}text-green-600{% endif %} dark:text-neutral-200">
+                    ${{ project.budget_remaining|floatformat:2 }}
+                </h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline Card -->
+    <div class="flex flex-col bg-white border shadow-sm rounded-xl dark:bg-neutral-800 dark:border-neutral-700">
+        <div class="p-4 md:p-5">
+            <div class="flex items-center gap-x-2">
+                <p class="text-xs uppercase tracking-wide text-gray-500">
+                    Timeline
+                </p>
+            </div>
+            <div class="mt-1">
+                <div class="text-sm text-gray-800 dark:text-neutral-200">
+                    <span class="font-medium">Start:</span> {{ project.start_date }}
+                </div>
+                <div class="text-sm text-gray-800 dark:text-neutral-200">
+                    <span class="font-medium">End:</span> {{ project.end_date }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Expenses Section -->
+<div class="flex flex-col">
+    <div class="p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-neutral-200">
+                Expenses
+            </h3>
+            {% if project.status != 'cancelled' %}
+            <button type="button" 
+                    class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none"
+                    hx-get="{% url 'app:add_expense' project.pk %}"
+                    hx-target="#dialog-container"
+                    hx-trigger="click"
+                    hx-indicator="#loading"
+                    hx-swap="innerHTML"
+                    hx-headers='{"HX-Debug": "true"}'>
+                Add Expense
+            </button>
+            {% else %}
+            <span class="text-sm text-gray-500">Cannot add expenses to a cancelled project</span>
+            {% endif %}
+            <div id="loading" class="htmx-indicator">Loading...</div>
+        </div>
+
+        <div class="flex flex-col">
+            <div class="-m-1.5 overflow-x-auto">
+                <div class="p-1.5 min-w-full inline-block align-middle">
+                    <div class="overflow-hidden">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">Date</th>
+                                    <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">Category</th>
+                                    <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">Description</th>
+                                    <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">Amount</th>
+                                    <th scope="col" class="px-6 py-3 text-end text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 dark:divide-gray-700" id="expenses-table-body">
+                                {% for expense in expenses %}
+                                {% include "projects/partials/expense_row.html" %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Dialog Container for HTMX -->
+<div id="dialog-container"></div>
+{% endblock %}
+
+{% block extra_head %}
+{{ block.super }}
+<script>
+// HTMX error handling
+document.body.addEventListener('htmx:responseError', function(evt) {
+    Swal.fire({
+        title: 'Error',
+        text: evt.detail.xhr.responseText || 'Something went wrong',
+        icon: 'error'
+    });
+});
+
+function confirmDelete() {
+    Swal.fire({
+        title: 'Delete Project?',
+        text: 'Are you sure you want to delete this project? This action cannot be undone and will delete all associated expenses and budgets.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'No, keep it',
+        footer: '<strong class="text-red-600">Warning: This action is permanent!</strong>'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch("{% url 'app:delete_project' project.pk %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    Swal.fire({
+                        title: 'Deleted!',
+                        text: data.message,
+                        icon: 'success'
+                    }).then(() => {
+                        window.location.href = "{% url 'app:project_list' %}";
+                    });
+                } else {
+                    Swal.fire('Error!', data.message, 'error');
+                }
+            })
+            .catch(error => {
+                Swal.fire('Error!', 'Something went wrong while deleting the project.', 'error');
+            });
+        }
+    });
+}
+
+function confirmStatusUpdate(event) {
+    event.preventDefault();
+    const form = event.target;
+    const select = form.querySelector('select');
+    const newStatus = select.options[select.selectedIndex].text;
+    
+    Swal.fire({
+        title: 'Update Project Status?',
+        text: `Are you sure you want to change the project status to "${newStatus}"?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, update it!',
+        cancelButtonText: 'No, keep it'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.submit();
+        }
+    });
+    return false;
+}
+
+function confirmApprove() {
+    Swal.fire({
+        title: 'Approve Project?',
+        text: 'Are you sure you want to approve this project?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, approve it!',
+        cancelButtonText: 'No, cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = "{% url 'app:approve_project' project.pk %}";
+        }
+    });
+}
+
+function confirmCancel() {
+    Swal.fire({
+        title: 'Cancel Project?',
+        text: 'Are you sure you want to cancel this project? This action cannot be undone.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'Yes, cancel it!',
+        cancelButtonText: 'No, keep it'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch("{% url 'app:cancel_project' project.pk %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    Swal.fire('Cancelled!', data.message, 'success')
+                    .then(() => window.location.reload());
+                } else {
+                    Swal.fire('Error!', data.message, 'error');
+                }
+            })
+            .catch(error => {
+                Swal.fire('Error!', 'Something went wrong.', 'error');
+            });
+        }
+    });
+}
+
+function confirmExport() {
+    Swal.fire({
+        title: 'Export Project Report?',
+        text: 'Do you want to export this project\'s report?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, export it!',
+        cancelButtonText: 'No, cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = "{% url 'app:export_project_report' project.pk %}";
+        }
+    });
+}
+</script>
+
+{% if messages %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    {% for message in messages %}
+    Swal.fire({
+        title: '{% if message.tags %}{{ message.tags|capfirst }}{% else %}Notice{% endif %}',
+        text: '{{ message|escapejs }}',
+        icon: '{% if message.tags == "error" %}error{% elif message.tags == "success" %}success{% else %}info{% endif %}'
+    });
+    {% endfor %}
+});
+</script>
+{% endif %}
+{% endblock %}

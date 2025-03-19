@@ -1,0 +1,223 @@
+{% extends "layout/dashboard/base.html" %}
+{% load static %}
+
+{% block title %}Create Project{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-4xl px-4 py-8">
+    <div class="mb-8 flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{% if project %}Edit{% else %}Create New{% endif %} Project</h1>
+        <a href="{% url 'app:project_list' %}" class="inline-flex items-center gap-x-2 rounded-lg border border-transparent bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
+            <svg class="size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Projects
+        </a>
+    </div>
+    
+    <form method="post" class="space-y-8 rounded-xl bg-white p-8 shadow-sm dark:bg-gray-800" id="projectForm" onsubmit="return confirmSubmit(event)">
+        {% csrf_token %}
+        {{ formset.management_form }}
+        
+        <!-- Project Details -->
+        <div class="space-y-6">
+            <div>
+                <label for="{{ form.name.id_for_label }}" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white">Project Name</label>
+                <input type="text" name="{{ form.name.html_name }}" id="{{ form.name.id_for_label }}" value="{{ form.name.value|default:'' }}" class="w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400" required>
+                {% if form.name.errors %}
+                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.name.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div>
+                <label for="{{ form.description.id_for_label }}" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white">Description</label>
+                <textarea name="{{ form.description.html_name }}" id="{{ form.description.id_for_label }}" rows="4" class="w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400" required>{{ form.description.value|default:'' }}</textarea>
+                {% if form.description.errors %}
+                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.description.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div>
+                    <label for="{{ form.start_date.id_for_label }}" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white">Start Date</label>
+                    <input type="date" name="{{ form.start_date.html_name }}" id="{{ form.start_date.id_for_label }}" value="{{ form.start_date.value|date:'Y-m-d'|default:'' }}" class="w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400" required>
+                    {% if form.start_date.errors %}
+                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.start_date.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <label for="{{ form.end_date.id_for_label }}" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white">End Date</label>
+                    <input type="date" name="{{ form.end_date.html_name }}" id="{{ form.end_date.id_for_label }}" value="{{ form.end_date.value|date:'Y-m-d'|default:'' }}" class="w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400" required>
+                    {% if form.end_date.errors %}
+                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.end_date.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Budget Categories -->
+        <div class="space-y-4">
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Budget Categories</h2>
+                <button type="button" 
+                        onclick="window.projectForm.showAddCategoryModal()" 
+                        class="inline-flex items-center gap-x-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600">
+                    <svg class="size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Add Category
+                </button>
+            </div>
+            
+            <div id="budget-categories" class="space-y-4">
+                {% for form in formset %}
+                    <div class="budget-category-form rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-700">
+                        {{ form.id }}
+                        <div class="grid gap-4 md:grid-cols-2">
+                            <div>
+                                <label for="{{ form.category_name.id_for_label }}" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white">Category Name</label>
+                                <input type="text" name="{{ form.category_name.html_name }}" id="{{ form.category_name.id_for_label }}" value="{{ form.category_name.value|default:'' }}" class="w-full rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400" required>
+                                {% if form.category_name.errors %}
+                                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.category_name.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <label for="{{ form.amount.id_for_label }}" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white">Budget Amount</label>
+                                <input type="number" name="{{ form.amount.html_name }}" id="{{ form.amount.id_for_label }}" value="{{ form.amount.value|default:'' }}" class="w-full rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400" required>
+                                {% if form.amount.errors %}
+                                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.amount.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="mt-4 flex justify-end">
+                            <button type="button" onclick="window.projectForm.deleteForm(this)" class="inline-flex items-center gap-x-2 rounded-lg border border-red-600 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 dark:border-red-500 dark:text-red-500 dark:hover:bg-red-950">
+                                <svg class="size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                Remove Category
+                            </button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="flex justify-end">
+            <button type="submit" class="inline-flex items-center gap-x-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600">
+                <svg class="size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Save Project
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Add Category Modal -->
+<div id="add-category-modal" class="fixed inset-0 z-50 hidden">
+    <!-- Modal backdrop -->
+    <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"></div>
+    
+    <!-- Modal content -->
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800">
+            <div class="mb-4 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Add New Category</h3>
+                <button type="button" onclick="window.projectForm.hideAddCategoryModal()" class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300">
+                    <svg class="size-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label for="new-category-name" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white">Category Name</label>
+                    <input type="text" id="new-category-name" class="w-full rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400" required>
+                </div>
+                <div>
+                    <label for="new-category-amount" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white">Budget Amount</label>
+                    <input type="number" id="new-category-amount" class="w-full rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400" required>
+                </div>
+            </div>
+            
+            <div class="mt-6 flex justify-end space-x-3">
+                <button type="button" onclick="window.projectForm.hideAddCategoryModal()" class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600">
+                    Cancel
+                </button>
+                <button type="button" onclick="window.projectForm.addNewCategory()" class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600">
+                    Add Category
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_head %}
+{{ block.super }}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function confirmSubmit(event) {
+    event.preventDefault();
+    const form = event.target;
+    
+    // Basic form validation
+    const startDate = new Date(form.querySelector('#{{ form.start_date.id_for_label }}').value);
+    const endDate = new Date(form.querySelector('#{{ form.end_date.id_for_label }}').value);
+    
+    if (endDate < startDate) {
+        Swal.fire({
+            title: 'Invalid Dates',
+            text: 'End date cannot be before start date',
+            icon: 'error'
+        });
+        return false;
+    }
+    
+    // Check if at least one budget category is added
+    const budgetRows = form.querySelectorAll('[id^="id_budgets-"][id$="-amount"]');
+    if (budgetRows.length === 0) {
+        Swal.fire({
+            title: 'Missing Budget Categories',
+            text: 'Please add at least one budget category',
+            icon: 'warning'
+        });
+        return false;
+    }
+    
+    // Show confirmation dialog
+    Swal.fire({
+        title: 'Create Project?',
+        text: 'Are you sure you want to create this project? It will be submitted for approval.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, create it!',
+        cancelButtonText: 'No, review it'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.submit();
+        }
+    });
+    
+    return false;
+}
+
+// Show success message if form was submitted successfully
+{% if messages %}
+    {% for message in messages %}
+        Swal.fire({
+            title: '{% if message.tags %}{{ message.tags|capfirst }}{% else %}Notice{% endif %}',
+            text: '{{ message|escapejs }}',
+            icon: '{% if message.tags == "error" %}error{% elif message.tags == "success" %}success{% else %}info{% endif %}'
+        });
+    {% endfor %}
+{% endif %}
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/project_form.js' %}"></script>
+{% endblock %}

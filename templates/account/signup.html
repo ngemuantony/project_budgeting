@@ -1,0 +1,75 @@
+{% extends "account/base_account.html" %}
+{% load i18n %}
+
+{% block account_title %}
+    {% trans "Sign Up" %}
+{% endblock %}
+
+{% block account_subtitle %}
+    <p class="mt-2 text-center text-sm text-gray-600">
+        {% trans "Already have an account?" %}
+        <a href="{% url 'account_login' %}" class="font-medium text-blue-600 hover:text-blue-500">
+            {% trans "Sign in" %}
+        </a>
+    </p>
+{% endblock %}
+
+{% block account_content %}
+    <form class="space-y-6" method="POST" action="{% url 'account_signup' %}">
+        {% csrf_token %}
+        {% if redirect_field_value %}
+            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+        {% endif %}
+
+        <div>
+            <label for="id_email" class="block text-sm font-medium text-gray-700">
+                {% trans "Email" %}
+            </label>
+            <div class="mt-1">
+                <input type="email" name="email" id="id_email" autocomplete="email" required
+                       class="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm">
+            </div>
+        </div>
+
+        <div>
+            <label for="id_password1" class="block text-sm font-medium text-gray-700">
+                {% trans "Password" %}
+            </label>
+            <div class="mt-1">
+                <input type="password" name="password1" id="id_password1" required
+                       class="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm">
+            </div>
+        </div>
+
+        <div>
+            <label for="id_password2" class="block text-sm font-medium text-gray-700">
+                {% trans "Confirm Password" %}
+            </label>
+            <div class="mt-1">
+                <input type="password" name="password2" id="id_password2" required
+                       class="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm">
+            </div>
+        </div>
+
+        <div>
+            <button type="submit" class="flex w-full justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                {% trans "Sign Up" %}
+            </button>
+        </div>
+    </form>
+{% endblock %}
+
+{% block account_footer %}
+    <div class="mt-6">
+        <p class="text-center text-sm text-gray-600">
+            {% trans "By signing up, you agree to our" %}
+            <a href="#" class="font-medium text-blue-600 hover:text-blue-500">
+                {% trans "Terms" %}
+            </a>
+            {% trans "and" %}
+            <a href="#" class="font-medium text-blue-600 hover:text-blue-500">
+                {% trans "Privacy Policy" %}
+            </a>
+        </p>
+    </div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{
+    "name": "Project Budget Manager",
+    "short_name": "Budget App",
+    "description": "Project Management Budgeting Tool",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#1E40AF",
+    "icons": [
+        {
+            "src": "/static/branding/1.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/static/branding/2.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}

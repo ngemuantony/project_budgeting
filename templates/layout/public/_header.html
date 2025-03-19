@@ -1,0 +1,79 @@
+{% load static %}
+<header class="z-50 flex w-full flex-wrap py-7 md:flex-nowrap md:justify-start">
+  <nav
+    class="relative mx-auto flex w-full max-w-7xl basis-full flex-wrap items-center px-4 md:grid md:grid-cols-12 md:px-8"
+    aria-label="Global"
+  >
+    <div class="md:col-span-3">
+      <!-- Logo -->
+      <a
+        class="inline-block flex-none rounded-xl text-xl font-semibold focus:opacity-80 focus:outline-none"
+        href="{% url 'app:landing_page' %}"
+        aria-label="Project Budget Manager"
+      >
+        <img
+          src="{% static 'branding/logo.png' %}"
+          class="h-auto w-28"
+          alt="Project Budget Manager Logo"
+          width="116"
+          height="10"
+        />
+      </a>
+      <!-- End Logo -->
+    </div>
+
+    <!-- Button Group -->
+    <div
+      class="ms-auto flex items-center gap-x-2 py-1 md:order-3 md:col-span-3 md:ps-6"
+    >
+    {% if user.is_authenticated %}
+      <a href="{% url 'app:dashboard_landing_page' %}"
+         class="inline-flex items-center gap-x-2 rounded-xl border border-transparent bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:pointer-events-none disabled:opacity-50">
+        Dashboard
+      </a>
+      <a href="{% url 'account_logout' %}"
+         class="inline-flex items-center gap-x-2 rounded-xl border border-gray-200 px-3 py-2 text-sm font-medium text-black hover:bg-gray-100 disabled:pointer-events-none disabled:opacity-50 dark:border-neutral-700 dark:text-white dark:hover:bg-white/10 dark:hover:text-white">
+        Sign Out
+      </a>
+    {% else %}
+      <a href="{% url 'account_login' %}"
+         class="inline-flex items-center gap-x-2 rounded-xl border border-gray-200 px-3 py-2 text-sm font-medium text-black hover:bg-gray-100 disabled:pointer-events-none disabled:opacity-50 dark:border-neutral-700 dark:text-white dark:hover:bg-white/10 dark:hover:text-white">
+        Sign In
+      </a>
+      <a href="{% url 'account_signup' %}"
+         class="inline-flex items-center gap-x-2 rounded-xl border border-transparent bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:pointer-events-none disabled:opacity-50">
+        Get Started
+      </a>
+    {% endif %}
+    </div>
+
+    <!-- End Button Group -->
+
+    <!-- Collapse -->
+    <div
+      id="navbar-collapse-with-animation"
+      class="hs-collapse hidden basis-full overflow-hidden transition-all duration-300 md:order-2 md:col-span-6 md:block md:basis-auto"
+    >
+      <div
+        class="mt-5 flex flex-col gap-x-0 gap-y-4 md:mt-0 md:flex-row md:items-center md:justify-end md:gap-x-7 md:gap-y-0 md:ps-7"
+      >
+        <a
+          class="text-sm font-medium text-gray-800 hover:text-gray-600 dark:text-neutral-200 dark:hover:text-neutral-400 md:py-6"
+          href="#features"
+          >Features</a
+        >
+        <a
+          class="text-sm font-medium text-gray-800 hover:text-gray-600 dark:text-neutral-200 dark:hover:text-neutral-400 md:py-6"
+          href="#pricing"
+          >Pricing</a
+        >
+        <a
+          class="text-sm font-medium text-gray-800 hover:text-gray-600 dark:text-neutral-200 dark:hover:text-neutral-400 md:py-6"
+          href="#about"
+          >About</a
+        >
+      </div>
+    </div>
+    <!-- End Collapse -->
+  </nav>
+</header>

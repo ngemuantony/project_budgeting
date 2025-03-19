@@ -1,0 +1,40 @@
+{% extends "account/_layout.html" %}
+{% load i18n %}
+
+{% block content %}
+  <div class="min-h-screen flex items-center justify-center bg-gray-50">
+    <div class="bg-white p-6 rounded-xl shadow-md max-w-md w-full">
+      <h1 class="text-2xl font-bold text-center text-gray-900 mb-6">Confirm Your Email</h1>
+
+      {% if confirmation %}
+        <p class="text-gray-600 mb-4 text-center">
+          {% blocktrans with email=confirmation.email_address.email %}
+            Please confirm that <span class="font-semibold">{{ email }}</span> is your email address.
+          {% endblocktrans %}
+        </p>
+
+        <form method="post" action="{% url 'account_confirm_email' confirmation.key %}" class="space-y-4">
+          {% csrf_token %}
+          <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition-colors duration-300">
+            {% trans "Confirm" %}
+          </button>
+        </form>
+      {% else %}
+        <p class="text-red-600 text-center mb-4">
+          {% trans "This email confirmation link is invalid or has expired." %}
+        </p>
+        <p class="text-gray-600 text-center">
+          <a href="{% url 'account_email' %}" class="text-blue-600 hover:underline">
+            {% trans "Request a new confirmation email" %}
+          </a>
+        </p>
+      {% endif %}
+
+      <p class="text-center text-gray-600 mt-4">
+        <a href="{% url 'account_login' %}" class="text-blue-600 hover:underline">
+          {% trans "Back to Login" %}
+        </a>
+      </p>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "layout/dashboard/base.html" %}
+{% load static %}
+
+{% block title %}Profile Settings{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+  <div class="bg-white rounded-xl shadow p-4 sm:p-7 dark:bg-neutral-800">
+    <div class="mb-8">
+      <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200">
+        Profile Settings
+      </h2>
+      <p class="text-sm text-gray-600 dark:text-gray-400">
+        Manage your account settings and preferences.
+      </p>
+    </div>
+
+    <form>
+      <div class="grid sm:grid-cols-12 gap-2 sm:gap-6">
+        <!-- First Name -->
+        <div class="sm:col-span-6">
+          <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-200">First Name</label>
+          <input type="text" 
+                 class="py-3 px-4 block w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none" 
+                 value="{{ user.first_name }}" 
+                 disabled>
+        </div>
+        <!-- Last Name -->
+        <div class="sm:col-span-6">
+          <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-200">Last Name</label>
+          <input type="text" 
+                 class="py-3 px-4 block w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none" 
+                 value="{{ user.last_name }}" 
+                 disabled>
+        </div>
+        <!-- Email -->
+        <div class="sm:col-span-12">
+          <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-200">Email</label>
+          <input type="email" 
+                 class="py-3 px-4 block w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none" 
+                 value="{{ user.email }}" 
+                 disabled>
+        </div>
+      </div>
+
+      <div class="mt-8 flex justify-end gap-x-2">
+        <a href="{% url 'account_change_password' %}" 
+           class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-neutral-700 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600">
+          Change Password
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

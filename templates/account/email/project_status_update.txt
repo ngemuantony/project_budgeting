@@ -1,0 +1,18 @@
+Dear {{ project.owner.get_full_name|default:project.owner.username }},
+
+The status of your project "{{ project.name }}" has been updated to {{ project.get_status_display }}.
+
+{% if project.status == 'approved' %}
+Your project has been approved! You can now start adding expenses and managing your budget.
+{% elif project.status == 'cancelled' %}
+Your project has been cancelled. No further expenses can be added to this project.
+{% endif %}
+
+Project Details:
+- Project Name: {{ project.name }}
+- Total Budget: ${{ project.total_budget }}
+- Start Date: {{ project.start_date }}
+- End Date: {{ project.end_date }}
+
+You can view your project details at:
+{{ site_url }}{% url 'app:project_detail' project.id %}

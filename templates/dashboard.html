@@ -1,0 +1,156 @@
+{% extends "layout/dashboard/layout.html" %} 
+{% block content %}
+<!-- Grid -->
+<div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+    <!-- Total Budget Card -->
+    <div class="flex flex-col bg-white border shadow-sm rounded-xl dark:bg-neutral-800 dark:border-neutral-700">
+        <div class="p-4 md:p-5">
+            <div class="flex items-center gap-x-2">
+                <p class="text-xs uppercase tracking-wide text-gray-500">
+                    Total Budget
+                </p>
+            </div>
+            <div class="mt-1 flex items-center gap-x-2">
+                <h3 class="text-xl sm:text-2xl font-medium text-gray-800 dark:text-neutral-200">
+                    ${{ total_budget|floatformat:2 }}
+                </h3>
+            </div>
+        </div>
+    </div>
+    <!-- End Total Budget Card -->
+
+    <!-- Total Expenses Card -->
+    <div class="flex flex-col bg-white border shadow-sm rounded-xl dark:bg-neutral-800 dark:border-neutral-700">
+        <div class="p-4 md:p-5">
+            <div class="flex items-center gap-x-2">
+                <p class="text-xs uppercase tracking-wide text-gray-500">
+                    Total Expenses
+                </p>
+            </div>
+            <div class="mt-1 flex items-center gap-x-2">
+                <h3 class="text-xl sm:text-2xl font-medium text-gray-800 dark:text-neutral-200">
+                    ${{ total_expenses|floatformat:2 }}
+                </h3>
+            </div>
+        </div>
+    </div>
+    <!-- End Total Expenses Card -->
+
+    <!-- Budget Remaining Card -->
+    <div class="flex flex-col bg-white border shadow-sm rounded-xl dark:bg-neutral-800 dark:border-neutral-700">
+        <div class="p-4 md:p-5">
+            <div class="flex items-center gap-x-2">
+                <p class="text-xs uppercase tracking-wide text-gray-500">
+                    Budget Remaining
+                </p>
+            </div>
+            <div class="mt-1 flex items-center gap-x-2">
+                <h3 class="text-xl sm:text-2xl font-medium {% if budget_remaining < 0 %}text-red-600{% else %}text-green-600{% endif %} dark:text-neutral-200">
+                    ${{ budget_remaining|floatformat:2 }}
+                </h3>
+            </div>
+        </div>
+    </div>
+    <!-- End Budget Remaining Card -->
+
+    <!-- Projects Count Card -->
+    <div class="flex flex-col bg-white border shadow-sm rounded-xl dark:bg-neutral-800 dark:border-neutral-700">
+        <div class="p-4 md:p-5">
+            <div class="flex items-center gap-x-2">
+                <p class="text-xs uppercase tracking-wide text-gray-500">
+                    Active Projects
+                </p>
+            </div>
+            <div class="mt-1 flex items-center gap-x-2">
+                <h3 class="text-xl sm:text-2xl font-medium text-gray-800 dark:text-neutral-200">
+                    {{ projects.count }}
+                </h3>
+            </div>
+        </div>
+    </div>
+    <!-- End Projects Count Card -->
+</div>
+<!-- End Grid -->
+
+<!-- Project List -->
+<div class="flex flex-col">
+    <div class="-m-1.5 overflow-x-auto">
+        <div class="p-1.5 min-w-full inline-block align-middle">
+            <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden dark:bg-neutral-800 dark:border-neutral-700">
+                <!-- Header -->
+                <div class="px-6 py-4 grid gap-3 md:flex md:justify-between md:items-center border-b border-gray-200 dark:border-neutral-700">
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-800 dark:text-neutral-200">
+                            Projects
+                        </h2>
+                    </div>
+                    <div>
+                        <div class="inline-flex gap-x-2">
+                            <a class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                               href="{% url 'app:project_list' %}">
+                                <svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M5 12h14"/>
+                                    <path d="M12 5v14"/>
+                                </svg>
+                                New Project
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <!-- End Header -->
+
+                <!-- Table -->
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-neutral-700">
+                    <thead class="bg-gray-50 dark:bg-neutral-800">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">Project Name</th>
+                            <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">Status</th>
+                            <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">Budget</th>
+                            <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">Expenses</th>
+                            <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">Remaining</th>
+                            <th scope="col" class="px-6 py-3 text-end text-xs font-medium text-gray-500 uppercase">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-neutral-700">
+                        {% for project in projects %}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-neutral-200">
+                                {{ project.name }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">
+                                <span class="inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-full text-xs font-medium {% if project.status == 'approved' %}bg-teal-100 text-teal-800{% elif project.status == 'pending' %}bg-yellow-100 text-yellow-800{% elif project.status == 'rejected' %}bg-red-100 text-red-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ project.status|title }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">
+                                ${{ project.total_budget|floatformat:2 }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">
+                                ${{ project.total_expenses|floatformat:2 }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm {% if project.budget_remaining < 0 %}text-red-600{% else %}text-green-600{% endif %}">
+                                ${{ project.budget_remaining|floatformat:2 }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
+                                <div class="inline-flex gap-x-2">
+                                    <a class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none"
+                                       href="{% url 'app:project_detail' project.pk %}">
+                                        View Details
+                                    </a>
+                                    <a class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                                       href="{% url 'app:export_project_report' project.pk %}">
+                                        Export
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <!-- End Table -->
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Project List -->
+{% endblock %}
