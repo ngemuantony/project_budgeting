@@ -6,3 +6,4 @@ django-crispy-forms==2.3
 sqlparse==0.5.3
 mysqlclient==2.2.4
 whitenoise==6.9.0
+django-dotenv
