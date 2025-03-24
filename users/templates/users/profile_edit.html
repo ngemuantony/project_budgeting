@@ -1,0 +1,168 @@
+{% extends "layout/dashboard/base.html" %}
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% trans "Edit Profile" %}{% endblock %}
+
+{% block content %}
+<!-- Main Content -->
+<div class="w-full px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{% trans "Edit Profile" %}</h1>
+        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">{% trans "Update your personal information and preferences" %}</p>
+    </div>
+
+    <!-- Profile Form -->
+    <div class="bg-white dark:bg-neutral-800 shadow-lg rounded-xl overflow-hidden border border-gray-200 dark:border-neutral-700">
+        <form method="post" enctype="multipart/form-data" class="divide-y divide-gray-200 dark:divide-neutral-700">
+            {% csrf_token %}
+
+            <!-- Profile Picture Section -->
+            <div class="p-6 sm:p-8 space-y-6">
+                <div class="flex flex-col items-center">
+                    <div class="relative group">
+                        <div class="relative">
+                            <img src="{{ user.profile_picture_url }}" 
+                                 alt="Profile Picture" 
+                                 class="h-16 w-16 rounded-full ring-4 ring-white dark:ring-neutral-700 shadow-lg object-cover"
+                                 id="profile-preview">
+                            <div class="absolute inset-0 rounded-full bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <span class="text-white text-sm font-medium">Change Photo</span>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <label for="id_profile_picture" class="cursor-pointer inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-neutral-800">
+                                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                {% trans "Upload Photo" %}
+                            </label>
+                            <div class="sr-only">{{ form.profile_picture }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Personal Information Section -->
+            <div class="p-6 sm:p-8 space-y-6">
+                <div>
+                    <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-white mb-6">{% trans "Personal Information" %}</h3>
+                    <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+                        <div class="space-y-2">
+                            <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            </label>
+                            {{ form.first_name|as_crispy_field }}
+                        </div>
+
+                        <div class="space-y-2">
+                            <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            </label>
+                            {{ form.last_name|as_crispy_field }}
+                        </div>
+
+                        <div class="space-y-2">
+                            <label for="{{ form.phone_number.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            </label>
+                            {{ form.phone_number|as_crispy_field }}
+                        </div>
+
+                        <div class="space-y-2">
+                            <label for="{{ form.date_of_birth.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            </label>
+                            {{ form.date_of_birth|as_crispy_field }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Professional Information Section -->
+            <div class="p-6 sm:p-8 space-y-6">
+                <div>
+                    <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-white mb-6">{% trans "Professional Information" %}</h3>
+                    <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+                        <div class="space-y-2">
+                            <label for="{{ form.position.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            </label>
+                            {{ form.position|as_crispy_field }}
+                        </div>
+
+                        <div class="space-y-2">
+                            <label for="{{ form.department.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            </label>
+                            {{ form.department|as_crispy_field }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Information Section -->
+            <div class="p-6 sm:p-8 space-y-6">
+                <div>
+                    <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-white mb-6">{% trans "Additional Information" %}</h3>
+                    <div class="space-y-6">
+                        <div class="space-y-2">
+                            <label for="{{ form.bio.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            </label>
+                            {{ form.bio|as_crispy_field }}
+                        </div>
+
+                        <div class="space-y-2">
+                            <label for="{{ form.address.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            </label>
+                            {{ form.address|as_crispy_field }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="px-6 py-4 sm:px-8 sm:py-6 bg-gray-50 dark:bg-neutral-900 flex items-center justify-between gap-x-3">
+                <a href="{% url 'users:profile' %}" 
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-neutral-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-neutral-800 hover:bg-gray-50 dark:hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-neutral-900">
+                    <svg class="h-5 w-5 mr-2 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    {% trans "Back to Profile" %}
+                </a>
+                <button type="submit" 
+                        class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-neutral-900">
+                    <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                    </svg>
+                    {% trans "Save Changes" %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const profilePictureInput = document.getElementById('id_profile_picture');
+    const previewImage = document.getElementById('profile-preview');
+    
+    if (profilePictureInput && previewImage) {
+        profilePictureInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                };
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+    }
+
+    // Add animation classes to form sections
+    const sections = document.querySelectorAll('form > div');
+    sections.forEach((section, index) => {
+        section.classList.add('transition-all', 'duration-300', 'ease-in-out');
+        section.style.transitionDelay = `${index * 100}ms`;
+    });
+});
+</script>
+{% endblock %}

@@ -13,13 +13,36 @@
             <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
         {% endif %}
 
+        {% if form.non_field_errors %}
+            <div class="rounded-md bg-red-50 p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
         <div>
             <label for="id_login" class="block text-sm font-medium text-gray-700">
                 {% trans "Email" %}
             </label>
             <div class="mt-1">
                 <input type="email" name="login" id="id_login" autocomplete="email" required
-                       class="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm">
+                       class="block w-full appearance-none rounded-md border {% if form.login.errors %}border-red-300{% else %}border-gray-300{% endif %} px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+                       {% if form.login.value %}value="{{ form.login.value }}"{% endif %}>
+                {% if form.login.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.login.errors.0 }}</p>
+                {% endif %}
             </div>
         </div>
 
@@ -29,7 +52,10 @@
             </label>
             <div class="mt-1">
                 <input type="password" name="password" id="id_password" autocomplete="current-password" required
-                       class="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm">
+                       class="block w-full appearance-none rounded-md border {% if form.password.errors %}border-red-300{% else %}border-gray-300{% endif %} px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm">
+                {% if form.password.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.password.errors.0 }}</p>
+                {% endif %}
             </div>
         </div>
 

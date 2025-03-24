@@ -1,0 +1,40 @@
+{% extends "account/base_account.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block account_title %}{% trans "Sign Out" %} | {{ block.super }}{% endblock %}
+
+{% block account_content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">{% trans "Sign Out" %}</h4>
+                </div>
+                <div class="card-body text-center">
+                    <h2 class="text-xl font-medium text-center text-gray-900 dark:text-gray-200">
+                        {% trans "Are you sure you want to sign out?" %}
+                    </h2>
+
+                    <form method="post" action="{% url 'account_logout' %}" class="mt-6">
+                        {% csrf_token %}
+                        {% if redirect_field_value %}
+                        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
+                        {% endif %}
+
+                        <div class="flex justify-center gap-3">
+                            <a href="{% url 'app:landing_page' %}" class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                <i class="fas fa-arrow-left me-1"></i> {% trans "Cancel" %}
+                            </a>
+                            <button type="submit" class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-dark bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                <i class="fas fa-sign-out-alt me-1"></i> {% trans "Sign Out" %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

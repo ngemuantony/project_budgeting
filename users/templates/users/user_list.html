@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "User Management" %} | {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card">
+        <div class="card-header">
+            <h4 class="mb-0">{% trans "User Management" %}</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>{% trans "Name" %}</th>
+                            <th>{% trans "Email" %}</th>
+                            <th>{% trans "Status" %}</th>
+                            <th>{% trans "Role" %}</th>
+                            <th>{% trans "Actions" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user_obj in users %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <img src="{{ user_obj.profile_picture_url }}" alt="Profile Picture" 
+                                         class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+                                    {{ user_obj.get_full_name|default:user_obj.email }}
+                                </div>
+                            </td>
+                            <td>{{ user_obj.email }}</td>
+                            <td>
+                                <span class="badge {% if user_obj.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                    {% if user_obj.is_active %}
+                                        {% trans "Active" %}
+                                    {% else %}
+                                        {% trans "Inactive" %}
+                                    {% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge {% if user_obj.is_staff %}bg-primary{% else %}bg-secondary{% endif %}">
+                                    {% if user_obj.is_staff %}
+                                        {% trans "Staff" %}
+                                    {% else %}
+                                        {% trans "User" %}
+                                    {% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                {% if user_obj != user %}
+                                <div class="btn-group">
+                                    <form method="post" action="{% url 'users:toggle_user_status' user_obj.id %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm {% if user_obj.is_active %}btn-warning{% else %}btn-success{% endif %} me-2">
+                                            {% if user_obj.is_active %}
+                                                <i class="fas fa-user-slash"></i> {% trans "Deactivate" %}
+                                            {% else %}
+                                                <i class="fas fa-user-check"></i> {% trans "Activate" %}
+                                            {% endif %}
+                                        </button>
+                                    </form>
+                                    <form method="post" action="{% url 'users:toggle_staff_status' user_obj.id %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm {% if user_obj.is_staff %}btn-danger{% else %}btn-primary{% endif %}">
+                                            {% if user_obj.is_staff %}
+                                                <i class="fas fa-user-minus"></i> {% trans "Remove Staff" %}
+                                            {% else %}
+                                                <i class="fas fa-user-plus"></i> {% trans "Make Staff" %}
+                                            {% endif %}
+                                        </button>
+                                    </form>
+                                </div>
+                                {% else %}
+                                <span class="text-muted">{% trans "Current User" %}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if is_paginated %}
+            <nav aria-label="{% trans 'User list pagination' %}" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

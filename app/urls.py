@@ -2,7 +2,7 @@ from django.urls import path
 from .views import (
     landing_page, dashboard_landing_page, project_list, project_detail,
     add_expense, approve_project, export_project_report, admin_dashboard,
-    project_create, profile_settings, account_management, update_project_status,
+    project_create, account_management, update_project_status,
     cancel_project, delete_project
 )
 
@@ -20,6 +20,5 @@ urlpatterns = [
     path('projects/<int:project_id>/update-status/', update_project_status, name='update_project_status'),
     path('projects/<int:project_id>/cancel/', cancel_project, name='cancel_project'),
     path('projects/<int:project_id>/delete/', delete_project, name='delete_project'),
-    path('profile/settings/', profile_settings, name="profile_settings"),
     path('account/', account_management, name="account_management"),
 ]

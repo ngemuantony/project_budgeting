@@ -4,6 +4,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from django.core.validators import RegexValidator
 
 from .managers import CustomUserManager
 
@@ -24,8 +25,8 @@ class User(AbstractUser, PermissionsMixin):
         unique=True,
         db_index=True
     )
-    first_name = models.CharField(_("first name"), max_length=30, blank=True)
-    last_name = models.CharField(_("last name"), max_length=30, blank=True)
+    first_name = models.CharField(_("first name"), max_length=150, blank=True)
+    last_name = models.CharField(_("last name"), max_length=150, blank=True)
     gender = models.CharField(
         _("Gender"), max_length=30, choices=GENDER_CHOICES, blank=True, null=True
     )
@@ -45,6 +46,63 @@ class User(AbstractUser, PermissionsMixin):
     )
     date_joined = models.DateTimeField(default=timezone.now)
 
+    # Profile fields
+    profile_picture = models.ImageField(
+        _("Profile Picture"),
+        upload_to='profile_pictures/',
+        null=True,
+        blank=True,
+        help_text=_("Upload your profile picture")
+    )
+    phone_number = models.CharField(
+        _("Phone Number"),
+        max_length=15,
+        blank=True,
+        validators=[
+            RegexValidator(
+                regex=r'^\+?1?\d{9,15}$',
+                message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed."
+            )
+        ]
+    )
+    bio = models.TextField(
+        _("Bio"),
+        max_length=500,
+        blank=True,
+        help_text=_("Tell us about yourself")
+    )
+    position = models.CharField(
+        _("Position"),
+        max_length=100,
+        blank=True,
+        help_text=_("Your role or position in the organization")
+    )
+    department = models.CharField(
+        _("Department"),
+        max_length=100,
+        blank=True,
+        help_text=_("Your department in the organization")
+    )
+    date_of_birth = models.DateField(
+        _("Date of Birth"),
+        null=True,
+        blank=True,
+        help_text=_("Your date of birth")
+    )
+    address = models.TextField(
+        _("Address"),
+        max_length=250,
+        blank=True,
+        help_text=_("Your address")
+    )
+    
+    # Email verification status
+    email_verified = models.BooleanField(
+        _("Email Verified"),
+        default=False,
+        help_text=_("Designates whether this user has verified their email address.")
+    )
+
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
@@ -56,6 +114,44 @@ class User(AbstractUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+    def get_absolute_url(self):
+        """Get URL for user's detail view."""
+        return reverse("users:detail", kwargs={"username": self.username})
+    
+    def get_full_name(self):
+        """
+        Return the first_name plus the last_name, with a space in between.
+        """
+        full_name = f"{self.first_name} {self.last_name}"
+        return full_name.strip()
+
+    def get_short_name(self):
+        """Return the short name for the user."""
+        return self.first_name
+    
+    def get_initials(self):
+        """Return user's initials for avatar placeholder."""
+        if self.first_name and self.last_name:
+            return f"{self.first_name[0]}{self.last_name[0]}".upper()
+        elif self.first_name:
+            return self.first_name[0].upper()
+        elif self.email:
+            return self.email[0].upper()
+        return "U"
+
+    def get_profile_picture_url(self):
+        """Return the URL of the profile picture or None."""
+        if self.profile_picture:
+            return self.profile_picture.url
+        return None
+
+    @property
+    def profile_picture_url(self):
+        """Return the URL of the profile picture or a default image."""
+        if self.profile_picture:
+            return self.profile_picture.url
+        return "/static/images/default-profile.png"
 
 
 # Type-Based Query Managers

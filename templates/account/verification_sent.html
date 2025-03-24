@@ -1,0 +1,88 @@
+{% extends "account/base_account.html" %}
+{% load i18n %}
+
+{% block account_title %}
+    {% trans "Verify Your Email Address" %}
+{% endblock %}
+
+{% block account_content %}
+    <div class="text-center">
+        <!-- Email Icon -->
+        <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
+            <svg class="h-6 w-6 text-blue-600 dark:text-blue-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+        </div>
+
+        <!-- Success Message -->
+        <div class="mt-6">
+            <div class="rounded-md bg-blue-50 p-4 dark:bg-blue-900/50">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3 text-left">
+                        <h3 class="text-sm font-medium text-blue-800 dark:text-blue-200">
+                            {% trans "Confirmation email sent" %}
+                        </h3>
+                        <div class="mt-2 text-sm text-blue-700 dark:text-blue-300">
+                            <p>
+                                {% blocktrans %}We have sent an email to <span class="font-medium">{{ email }}</span> for verification.{% endblocktrans %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="mt-6 space-y-6 text-left">
+            <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <h4 class="text-base font-medium text-gray-900 dark:text-gray-100">{% trans "Next Steps:" %}</h4>
+                <ul class="mt-4 list-inside space-y-3 text-sm text-gray-600 dark:text-gray-300">
+                    <li class="flex items-start">
+                        <span class="mr-2">1.</span>
+                        {% trans "Follow the link in the email to finalize the signup process." %}
+                    </li>
+                    <li class="flex items-start">
+                        <span class="mr-2">2.</span>
+                        {% trans "If you don't see the email in your inbox, check your spam folder." %}
+                    </li>
+                    <li class="flex items-start">
+                        <span class="mr-2">3.</span>
+                        {% trans "The verification link will expire in 24 hours." %}
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Help Text -->
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+                {% trans "Haven't received the email?" %}
+                <a href="{% url 'account_email' %}" class="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300">
+                    {% trans "Request a new one" %}
+                </a>
+            </p>
+        </div>
+    </div>
+{% endblock %}
+
+{% block account_footer %}
+    <div class="mt-6">
+        <div class="relative">
+            <div class="absolute inset-0 flex items-center">
+                <div class="w-full border-t border-gray-300 dark:border-gray-600"></div>
+            </div>
+            <div class="relative flex justify-center text-sm">
+                <span class="bg-white px-2 text-gray-500 dark:bg-gray-900 dark:text-gray-400">{% trans "Need help?" %}</span>
+            </div>
+        </div>
+        <p class="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
+            {% trans "Contact our support team at" %}
+            <a href="mailto:support@example.com" class="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300">
+                support@example.com
+            </a>
+        </p>
+    </div>
+{% endblock %}

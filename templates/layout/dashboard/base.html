@@ -1,4 +1,5 @@
 {% load static %}
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="en" class="h-full">
   <head>
@@ -7,6 +8,7 @@
     <title>{% block title %}{% endblock %} | Project Budgeting</title>
     <link rel="stylesheet" href="{% static 'css/dist/styles.css' %}" />
     <script src="{% static 'js/htmx.min.js' %}"></script>
+    <script src="{% static 'js/preline.js' %}"></script>
   </head>
   <body class="h-full bg-gray-50 dark:bg-neutral-900">
     <!-- ========== MAIN CONTENT ========== -->
@@ -29,13 +31,67 @@
         <header class="sticky top-0 inset-x-0 flex flex-wrap sm:justify-start sm:flex-nowrap z-[48] w-full bg-white border-b text-sm py-2.5 sm:py-4 dark:bg-neutral-800 dark:border-neutral-700">
           <nav class="flex basis-full items-center w-full mx-auto px-4 sm:px-6 md:px-8" aria-label="Global">
             <div class="w-full flex items-center justify-end ms-auto sm:gap-x-3 sm:order-3">
+              <!-- Notifications -->
               <div class="flex flex-row items-center justify-end gap-2">
                 <div class="hs-dropdown relative inline-flex [--placement:bottom-right]">
-                  <button type="button" class="inline-flex items-center justify-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600" data-hs-overlay="#hs-overlay-right">
-                    <svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                    <span class="text-gray-600 font-medium truncate max-w-[7.5rem] dark:text-gray-400">{{ user.email }}</span>
-                    <svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                  <button type="button" class="hs-dropdown-toggle inline-flex flex-shrink-0 justify-center items-center gap-2 h-[2.375rem] w-[2.375rem] rounded-full font-medium bg-white text-gray-700 align-middle hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-white transition-all text-xs dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:text-gray-400 dark:hover:text-white dark:focus:ring-gray-700 dark:focus:ring-offset-gray-800">
+                    <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                      <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zM8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6z"/>
+                    </svg>
                   </button>
+
+                  <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden min-w-[15rem] bg-white shadow-md rounded-lg p-2 dark:bg-neutral-800 dark:border dark:border-neutral-700" aria-labelledby="hs-dropdown-with-header">
+                    <div class="py-3 px-5 -m-2 bg-gray-100 rounded-t-lg dark:bg-neutral-700">
+                      <p class="text-sm text-gray-500 dark:text-gray-400">{% trans "Notifications" %}</p>
+                    </div>
+                    <div class="mt-2 py-2 first:pt-0 last:pb-0">
+                      <p class="text-sm text-center text-gray-500 dark:text-gray-400">{% trans "No new notifications" %}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Profile dropdown -->
+                <div class="hs-dropdown relative inline-flex" data-hs-dropdown-placement="bottom-right">
+                    <button id="profile-dropdown" type="button" class="hs-dropdown-toggle inline-flex items-center justify-center gap-2 p-1 text-sm font-medium text-gray-700 align-middle transition-all rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-blue-600 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white dark:focus:ring-offset-gray-800">
+                        {% if user.profile_picture %}
+                            <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-gray-800" src="{{ user.profile_picture.url }}" alt="{{ user.get_full_name|default:user.email }}">
+                        {% else %}
+                            <div class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-blue-600">
+                                <span class="font-medium text-white text-sm">{{ user.get_initials }}</span>
+                            </div>
+                        {% endif %}
+                    </button>
+
+                    <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden min-w-60 bg-white shadow-md rounded-lg p-2 mt-2 dark:bg-gray-800 dark:border dark:border-gray-700" aria-labelledby="profile-dropdown">
+                        <div class="py-3 px-5 -m-2 bg-gray-100 rounded-t-lg dark:bg-gray-700">
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Signed in as</p>
+                            <p class="text-sm font-medium text-gray-800 dark:text-gray-300">{{ user.email }}</p>
+                        </div>
+                        <div class="mt-2 py-2 first:pt-0 last:pb-0">
+                            <a class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-blue-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300" href="{% url 'users:profile' %}">
+                                <svg class="flex-none" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
+                                </svg>
+                                Profile
+                            </a>
+                            <a class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-blue-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300" href="{% url 'users:settings' %}">
+                                <svg class="flex-none" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M11.5 2a1.5 1.5 0 0 0 0 3 1.5 1.5 0 0 0 0-3zM9.05 3a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0V3h9.05zM4.5 7a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM2.05 8a2.5 2.5 0 0 1 4.9 0H16v1H6.95a2.5 2.5 0 0 1-4.9 0H0V8h2.05zm9.45 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm-2.45 1a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0v-1h9.05z"/>
+                                </svg>
+                                Settings
+                            </a>
+                            <div class="py-2 first:pt-0 last:pb-0">
+                                <div class="border-t border-gray-200 my-2 dark:border-gray-700"></div>
+                            </div>
+                            <a class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-red-600 hover:bg-gray-100 focus:ring-2 focus:ring-blue-500 dark:text-red-500 dark:hover:bg-gray-700" href="{% url 'account_logout' %}">
+                                <svg class="flex-none" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z"/>
+                                    <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
+                                </svg>
+                                Sign Out
+                            </a>
+                        </div>
+                    </div>
                 </div>
               </div>
             </div>
@@ -51,9 +107,5 @@
       <!-- End Content -->
     </div>
     <!-- ========== END MAIN CONTENT ========== -->
-
-    <!-- ========== SCRIPTS ========== -->
-    <script src="{% static 'js/preline.js' %}"></script>
-    {% block scripts %}{% endblock %}
   </body>
 </html>

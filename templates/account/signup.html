@@ -1,5 +1,6 @@
 {% extends "account/base_account.html" %}
 {% load i18n %}
+{% load account %}
 
 {% block account_title %}
     {% trans "Sign Up" %}
@@ -15,11 +16,86 @@
 {% endblock %}
 
 {% block account_content %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="mb-4 rounded-md {% if message.tags == 'error' %}bg-red-50{% else %}bg-blue-50{% endif %} p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        {% if message.tags == 'error' %}
+                            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                            </svg>
+                        {% else %}
+                            <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                            </svg>
+                        {% endif %}
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium {% if message.tags == 'error' %}text-red-800{% else %}text-blue-800{% endif %}">
+                            {{ message }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+
     <form class="space-y-6" method="POST" action="{% url 'account_signup' %}">
         {% csrf_token %}
         {% if redirect_field_value %}
             <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
         {% endif %}
+
+        {% if form.errors %}
+            <div class="rounded-md bg-red-50 p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">
+                            {% trans "Please correct the errors below:" %}
+                        </h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            <ul class="list-disc space-y-1 pl-5">
+                                {% for field, errors in form.errors.items %}
+                                    {% for error in errors %}
+                                        <li>{{ field|title }}: {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div>
+                <label for="id_first_name" class="block text-sm font-medium text-gray-700">
+                    {% trans "First Name" %}
+                </label>
+                <div class="mt-1">
+                    <input type="text" name="first_name" id="id_first_name" required
+                           class="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+                           {% if form.first_name.value %}value="{{ form.first_name.value }}"{% endif %}>
+                </div>
+            </div>
+
+            <div>
+                <label for="id_last_name" class="block text-sm font-medium text-gray-700">
+                    {% trans "Last Name" %}
+                </label>
+                <div class="mt-1">
+                    <input type="text" name="last_name" id="id_last_name" required
+                           class="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+                           {% if form.last_name.value %}value="{{ form.last_name.value }}"{% endif %}>
+                </div>
+            </div>
+        </div>
 
         <div>
             <label for="id_email" class="block text-sm font-medium text-gray-700">
@@ -27,7 +103,8 @@
             </label>
             <div class="mt-1">
                 <input type="email" name="email" id="id_email" autocomplete="email" required
-                       class="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm">
+                       class="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+                       {% if form.email.value %}value="{{ form.email.value }}"{% endif %}>
             </div>
         </div>
 
@@ -39,6 +116,9 @@
                 <input type="password" name="password1" id="id_password1" required
                        class="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm">
             </div>
+            <p class="mt-2 text-sm text-gray-500">
+                {% trans "Your password must contain at least 8 characters." %}
+            </p>
         </div>
 
         <div>

@@ -1,8 +1,9 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth import admin as auth_admin
+from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 
-from .forms import UserCreationForm, UserChangeForm
+from .forms import UserAdminChangeForm, UserAdminCreationForm
 from .models import User, EndUserProfile, StaffUserProfile
 
 
@@ -19,70 +20,60 @@ class EndUserProfileInline(admin.StackedInline):
     verbose_name_plural = "End User Profile"
 
 
-# Custom User Admin
-class CustomUserAdmin(UserAdmin):
-    add_form = UserCreationForm
-    form = UserChangeForm
-    model = User
+User = get_user_model()
 
-    # Displayed fields in the admin list view
-    list_display = (
-        "email",
-        "first_name",
-        "last_name",
-        "type",
-        "gender",
-        "is_staff",
-        "is_active",
-        "is_superuser",
-        "is_verified",
-    )
-    list_filter = (
-        "type",
-        "gender",
-        "is_verified",
-        "is_active",
-        "is_superuser",
-        "is_staff",
-    )
-
-    # Fieldsets for viewing/editing a user
+@admin.register(User)
+class UserAdmin(auth_admin.UserAdmin):
+    """Admin interface for User model."""
+    form = UserAdminChangeForm
+    add_form = UserAdminCreationForm
     fieldsets = (
-        (_("Credentials"), {"fields": ("email", "password")}),
-        (_("Personal Info"), {"fields": ("first_name", "last_name", "gender")}),
+        (None, {"fields": ("email", "password")}),
+        (_("Personal info"), {
+            "fields": (
+                "username",
+                "first_name",
+                "last_name",
+                "profile_picture",
+                "phone_number",
+                "bio",
+                "position",
+                "department",
+                "date_of_birth",
+                "address",
+            )
+        }),
         (
             _("Permissions"),
-            {"fields": ("is_staff", "is_active", "is_verified", "is_superuser", "groups", "user_permissions")},
-        ),
-        (_("User Type"), {"fields": ("type",)}),
-    )
-
-    # Fieldsets for creating a new user
-    add_fieldsets = (
-        (
-            None,
             {
-                "classes": ("wide",),
                 "fields": (
-                    "email",
-                    "first_name",
-                    "last_name",
-                    "gender",
-                    "password1",
-                    "password2",
-                    "type",
-                    "is_staff",
                     "is_active",
+                    "is_staff",
                     "is_superuser",
                     "groups",
                     "user_permissions",
                 ),
             },
         ),
+        (_("Important dates"), {"fields": ("last_login", "date_joined")}),
     )
-
-    search_fields = ("email", "first_name", "last_name")
-    ordering = ("email",)
+    list_display = ["email", "username", "first_name", "last_name", "is_staff"]
+    search_fields = ["username", "first_name", "last_name", "email"]
+    ordering = ["email"]
+    list_filter = ["is_staff", "is_superuser", "is_active", "groups"]
+    readonly_fields = ["last_login", "date_joined"]
+    
+    def get_fieldsets(self, request, obj=None):
+        """Customize fieldsets based on whether this is an add or change form."""
+        if not obj:
+            # Only show necessary fields when adding a user
+            return (
+                (None, {
+                    "classes": ("wide",),
+                    "fields": ("email", "username", "password1", "password2"),
+                }),
+            )
+        return super().get_fieldsets(request, obj)
 
     # Dynamically include the correct profile inline
     def get_inlines(self, request, obj=None):
@@ -101,10 +92,6 @@ class CustomUserAdmin(UserAdmin):
         return queryset.prefetch_related("staff_profile", "end_user_profile")
 
 
-# Register the custom User model and admin
-admin.site.register(User, CustomUserAdmin)
-
-
 # Admin for Staff and End User Profiles
 @admin.register(StaffUserProfile)
 class StaffUserProfileAdmin(admin.ModelAdmin):
@@ -116,4 +103,3 @@ class StaffUserProfileAdmin(admin.ModelAdmin):
 class EndUserProfileAdmin(admin.ModelAdmin):
     list_display = ("user",)
     search_fields = ("user__email", "user__first_name", "user__last_name")
-    
